@@ -1,0 +1,17 @@
+'use client';
+import {useMemo,useState} from 'react';
+const base=[['Global index',75],['Small-cap value',10],['Bitcoin',10],['Gold',5]];
+const fmt=n=>new Intl.NumberFormat('en-PL',{maximumFractionDigits:0}).format(Math.round(n))+' PLN';
+export default function Home(){
+ const [initial,setInitial]=useState(10000),[monthly,setMonthly]=useState(1500),[rate,setRate]=useState(7),[years,setYears]=useState(20),[spend,setSpend]=useState(6000);
+ const [name,setName]=useState('My FIRE Portfolio'),[alloc,setAlloc]=useState({global:75,small:10,btc:10,gold:5}),[community,setCommunity]=useState([]);
+ const fire=spend*12/.04;
+ const projected=useMemo(()=>{let b=initial,r=rate/1200;for(let i=0;i<years*12;i++)b=b*(1+r)+monthly;return b},[initial,monthly,rate,years]);
+ const coast=fire/Math.pow(1+rate/100,years); const total=Object.values(alloc).reduce((a,b)=>a+b,0);
+ const publish=()=>{if(total!==100||!name.trim())return;setCommunity([{name,alloc:{...alloc}},...community])};
+ return <main><header><div><div className="eyebrow">FINANCIAL INDEPENDENCE</div><h1>Road to Financial Freedom</h1><p>by Charnel</p></div></header>
+ <section className="hero"><div><h2>Build wealth. Buy back your time.</h2><p>Explore FIRE, Coast FIRE and simple long-term portfolio planning.</p></div><div className="target"><span>4% FIRE target</span><strong>{fmt(fire)}</strong></div></section>
+ <div className="grid"><section className="card"><h2>Charnel's Standard Portfolio</h2><p className="muted">Reference portfolio for long-term planning.</p>{base.map(([n,p])=><div className="asset" key={n}><div><span>{n}</span><b>{p}%</b></div><div className="bar"><i style={{width:p+'%'}}/></div></div>)}</section>
+ <section className="card"><h2>FIRE Calculator</h2>{[['Starting portfolio',initial,setInitial],['Monthly investment',monthly,setMonthly],['Expected annual return %',rate,setRate],['Years',years,setYears],['Monthly FIRE spending',spend,setSpend]].map(([l,v,s])=><label key={l}>{l}<input type="number" value={v} min="0" onChange={e=>s(Number(e.target.value))}/></label>)}<div className="stats"><div><span>Projected portfolio</span><b>{fmt(projected)}</b></div><div><span>Coast FIRE number today</span><b>{fmt(coast)}</b></div><div><span>Projected FIRE progress</span><b>{Math.min(100,projected/fire*100).toFixed(0)}%</b></div></div></section></div>
+ <section className="card"><h2>Community Portfolios</h2><p className="muted">Create your own allocation. Each portfolio is separate from Charnel's standard portfolio.</p><div className="communityForm"><label>Portfolio name<input value={name} onChange={e=>setName(e.target.value)}/></label>{[['global','Global index'],['small','Small-cap value'],['btc','Bitcoin'],['gold','Gold']].map(([k,l])=><label key={k}>{l} %<input type="number" min="0" max="100" value={alloc[k]} onChange={e=>setAlloc({...alloc,[k]:Number(e.target.value)})}/></label>)}</div><p className={total===100?'ok':'warn'}>Total allocation: {total}% {total===100?'✓':'(must equal 100%)'}</p><button disabled={total!==100} onClick={publish}>Add portfolio</button><div className="community">{community.map((p,i)=><article key={i}><h3>{p.name}</h3><p>Global {p.alloc.global}% · Small cap {p.alloc.small}% · Bitcoin {p.alloc.btc}% · Gold {p.alloc.gold}%</p></article>)}</div></section>
+ <footer>Educational planning tool only. Examples are not personalized financial advice. Community entries in this V1 demo are stored only in the current browser session.</footer></main>}
